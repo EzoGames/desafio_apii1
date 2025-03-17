@@ -34,7 +34,7 @@ def init_db():
             titulo text not null,
             autor text not null,  
             categoria text not null,
-            imagem_url text not null
+            image_url text not null
                 )
 
             """
@@ -45,18 +45,18 @@ init_db()
 @app.route("/doar", methods =["POST"])
 
 def doar():
-    
+
     dados = request.get_json()
 
     titulo = dados.get("titulo")
     categoria = dados.get("categoria")
     autor = dados.get("autor")
-    imagem_url = dados.get("imagem_url")
+    image_url = dados.get("image_url")
 
     with sqlite3.connect("database.db") as conn:
         conn.execute(f"""
-            INSERT INNTO LIVROS (titulo, categoria,autor,imagem_url)
-            VALUES ("{titulo}","{categoria}","{autor}","{imagem_url}")
+            INSERT INNTO LIVROS (titulo, categoria,autor,image_url)
+            VALUES ("{titulo}","{categoria}","{autor}","{image_url}")
 """)
         
         return jsonify({"mensagem":"Livro cadastrado com sucesso"}), 201
