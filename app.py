@@ -1,35 +1,21 @@
-from flask import Flask, request, jsonify # Importamos a classe Flask do módulo flask para criar nosso aplicativo web
+from flask import Flask, request, jsonify 
 import sqlite3
-# Aqui estamos criando uma instância do Flask e armazenando na variável "app"
-# O parâmetro __name__ é passado para o Flask para que ele consiga identificar o arquivo principal da aplicação
+
+
 app = Flask(__name__)
 
-# Aqui estamos criando uma rota para o endpoint "/pagar"
-# Ou seja, quando acessarmos http://127.0.0.1:5000/pagar no navegador, a função abaixo será executada
-@app.route("/pagar")
+
+@app.route("/")
 def exibir_mensagem():
-    # Retorna um texto formatado em HTML para ser exibido na página da rota "/pagar"
-    return "<h1>Pagar as pessoas, faz bem as pessoas!!!</h1>"
 
-# Criamos outra rota para o endpoint "/femandaopix"
-# Quando acessarmos http://127.0.0.1:5000/femandaopix, a função será chamada automaticamente
-@app.route("/femandaopix")
-def manda_o_pix():
-    # Retorna um texto formatado em HTML que será exibido no navegador
-    return "<h2>SE TEM DOR DE CUTUVELO, TÁ DEVENDO</h2>"
-
-# Criamos uma terceira rota para o endpoint "/comida"
-# Sempre que o usuário acessar http://127.0.0.1:5000/comida, essa função será executada
-@app.route("/comida")
-def comida():
-    # Retorna um texto formatado em HTML com uma mensagem sobre comida
-    return "<h2>Tomato à milanesa</h2>"
+    return "<h1>Bem vindo(a)</h1>"
 
 def init_db():
     with sqlite3.connect("database.db") as conn:
         conn.execute(
+
             """
-            create table if not exists livro(
+            create table if not exists LIVRO(
             id integer primary key autoincrement,
             titulo text not null,
             autor text not null,  
@@ -55,14 +41,39 @@ def doar():
 
     with sqlite3.connect("database.db") as conn:
         conn.execute(f"""
-            INSERT INNTO LIVROS (titulo, categoria,autor,image_url)
+            INSERT INTO LIVRO (titulo, categoria,autor,image_url)
             VALUES ("{titulo}","{categoria}","{autor}","{image_url}")
 """)
-        
-        return jsonify({"mensagem":"Livro cadastrado com sucesso"}), 201
 
-# Aqui verificamos se o script está sendo executado diretamente e não importado como módulo
+    conn.commit() 
+
+    return jsonify({"mensagem":"Livro cadastrado com sucesso"}), 201
+
+@app.route("/livros", methods=["GET"])
+def listar_livros():
+    with sqlite3.connect("database.db") as conn:
+
+        livros = conn.execute("SELECT * FROM LIVRO").fetchall()
+
+        print (f"Aqui estão os livros:{livros}")
+
+        livros_formatados= []
+
+        for item in livros:
+            dicionario_livros={
+            "id":item[0],
+            "titulo":item[1],
+            "categoria":item[2],
+            "autor":item[3],
+            "image_url":item[4]
+        }
+        
+            livros_formatados.append(dicionario_livros)
+
+    return jsonify(livros_formatados), 200
+
+
 if __name__ == "__main__":
-    # Inicia o servidor Flask no modo de depuração
-    # O modo debug faz com que as mudanças no código sejam aplicadas automaticamente, sem necessidade de reiniciar o servidor manualmente
+ 
+ 
     app.run(debug=True)
